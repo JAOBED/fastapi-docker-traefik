@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin-app
+  template:
+    metadata:
+      labels:
+        app: pgadmin-app
+    spec:
+      containers:
+        - name: pgadmin
+          image: dpage/pgadmin4
+          ports:
+            - containerPort: 80
+          env:
+            - name: PGADMIN_DEFAULT_EMAIL
+              value: jaoued.beddiaf@gmail.com
+            - name: PGADMIN_DEFAULT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-rootpass-secret
+                  key: password # admin
+            - name: PGADMIN_SERVER_JSON_FILE
+              value: "/var/lib/pgadmin/servers.json"  # Chemin vers le fichier de configuration JSON
+          volumeMounts:
+            - name: app-volume
+              mountPath: /app
+            - name: pgadmin-servers
+              mountPath: /var/lib/pgadmin/servers.json
+              subPath: servers.json            
+      volumes:
+        - name: app-volume
+          hostPath:
+            path: /home/ubuntu/Projet/YAML/volume_pgadmin
+        - name: pgadmin-servers
+          configMap:
+            name: pgadmin-servers
+---
+# Service pour phpMyAdmin
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin-service
+spec:
+  type: NodePort
+  selector:
+    app: pgadmin-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 32000

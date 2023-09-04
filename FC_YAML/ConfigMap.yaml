@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgadmin-servers
+data:
+  servers.json: |
+    {
+      "Servers": {
+        "1": {
+            "Name": "My PostgreSQL Server",
+            "Group": "Servers",
+            "Host": "postgresql-service",
+            "Port": 5432,
+            "Username": "fastapi_traefik",
+            "SSLMode": "prefer",
+            "MaintenanceDB": "fastapi_traefik",
+            "Password": "admin"
+        }
+      }
+    }
+
